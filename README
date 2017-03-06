@@ -1,0 +1,11 @@
+To build : 
+javac *.java
+
+To Run :
+  1. Play with another human player : java main
+  2. Play against Monte Carlo AI, letting the robot go first. :
+	 java main -p1 MonteCarloAI
+  3. Let our Robot play against Monte Carlo AI, letting my robot go first :
+	 java main -p1 DavidAI -p2 MonteCarloAI
+
+

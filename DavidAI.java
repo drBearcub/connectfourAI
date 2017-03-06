@@ -7,20 +7,18 @@ class node
 		m_GameState = game.copy();
 		isZombie = false;
 		children = new ArrayList<node>();
-		//Moves = new ArrayList<Integer>();
 	}
 	public node() { //zombie constructor
 		isZombie = true;
 		children = new ArrayList<node>();
 	}
-	//public double score;
+
 	public GameStateModule m_GameState;
 	public ArrayList<node> children;
 	public boolean isZombie;
-	//public ArrayList<Integer> Moves;
 }
 
-public class AngelaAI2 extends AIModule
+public class DavidAI extends AIModule
 {
 	public int ourPlayer = -1;
 	public int gameWidth = -1;
@@ -48,12 +46,10 @@ public class AngelaAI2 extends AIModule
 	}
 
 	
-
 	public void getNextMove(GameStateModule game) {
 		final long startTime = System.currentTimeMillis();
 		initialize(game);
 		println("in getNextMove");
-
 
 		betterMinimax(0, true);
 
@@ -61,6 +57,7 @@ public class AngelaAI2 extends AIModule
 		System.out.println("Total execution time: " + (endTime - startTime) );
 	}
 
+// Determines if the player has won by satisfying horizontal win condition
 	public int canWinHorizontally(GameStateModule game, int player){
 		int counter = 0;
 		int playerCounter = 0;
@@ -73,30 +70,25 @@ public class AngelaAI2 extends AIModule
 						++playerCounter;
 					} else if(game.getAt(j+k, i) == 0){
 						++emptyCounter;
-						//println("emptyCounter: "+emptyCounter);
 					}
-					//System.out.print(" x: "+(j+k)+" y: "+ i+" player: "+game.getAt(j+k,i));
 				}
-				//println("playerCounter: "+playerCounter+" emptyCounter: " +emptyCounter);
 				if(playerCounter == 3 && emptyCounter == 1) {
 					++counter;
-					//println("playerCounter: "+playerCounter+" emptyCounter: "+emptyCounter);
 				}
 				playerCounter = 0;
 				emptyCounter = 0;
 			}
 		}
-		//println("horizontal counter: "+counter);
 		return counter;
 	}
 
+// Determines if the player has won by satisfying vertical win condition
 	public int canWinVertically(GameStateModule game, int player){
 		int counter = 0;
 		int playerCounter = 0;
 		int colomnHeight;
 		for(int i = 0; i < gameWidth; ++i){
 			colomnHeight = game.getHeightAt(i);
-			//println(colomnHeight +"");
 			if(colomnHeight > 2 && colomnHeight < gameHeight){
 				for(int j = 0; j < 3; ++j){
 					if(game.getAt(i, colomnHeight-j) == player) {
@@ -109,10 +101,10 @@ public class AngelaAI2 extends AIModule
 				playerCounter = 0;
 			}
 		}
-		//println("vertical counter " + counter);
 		return counter;
 	}
 
+// Determines if the player has won by satisfying diagnal win condition, left to right accending
 	public int canWinDiagonally1(GameStateModule game, int player){
 		int counter = 0;
 		int playerCounter = 0;
@@ -126,10 +118,8 @@ public class AngelaAI2 extends AIModule
 						++emptyCounter;
 					}
 				}
-				//println("playerCounter: "+playerCounter+" emptyCounter: "+emptyCounter);
 				if(playerCounter == 3 && emptyCounter == 1) {
 					++counter;
-					//println("playerCounter: "+playerCounter+" emptyCounter: "+emptyCounter);
 				}
 				playerCounter = 0;
 				emptyCounter = 0;			
@@ -138,6 +128,7 @@ public class AngelaAI2 extends AIModule
 		return counter;
 	}
 
+// Determines if the player has won by satisfying diagnal win condition, left to right descending
 	public int canWinDiagonally2(GameStateModule game, int player){
 		int counter = 0;
 		int playerCounter = 0;
@@ -153,7 +144,6 @@ public class AngelaAI2 extends AIModule
 				}
 				if(playerCounter == 3 && emptyCounter == 1) {
 					++counter;
-					//println("playerCounter: "+playerCounter+" emptyCounter: "+emptyCounter);
 				}
 				playerCounter = 0;
 				emptyCounter = 0;
@@ -162,24 +152,24 @@ public class AngelaAI2 extends AIModule
 		return counter;
 	}
 
+// Determines if current player can lose if it does not block the opponent
 	public int defensiveCheck(GameStateModule game) {
-		return 100 * (canWinHorizontally(game, theirPlayer) + canWinVertically(game, theirPlayer)) + 100*(canWinDiagonally1(game,theirPlayer) + canWinDiagonally2(game,theirPlayer));
+		return 100 * (canWinHorizontally(game, theirPlayer) + canWinVertically(game, theirPlayer) + canWinDiagonally1(game,theirPlayer) + canWinDiagonally2(game,theirPlayer));
 	}
 
+// Determines if current player can win if opponent does not block the current player
 	public int offensiveCheck(GameStateModule game) {
-		return 100 * (canWinHorizontally(game, ourPlayer) + canWinVertically(game, ourPlayer)) + 100*(canWinDiagonally1(game,ourPlayer) + canWinDiagonally2(game,ourPlayer));
+		return 100 * (canWinHorizontally(game, ourPlayer) + canWinVertically(game, ourPlayer) + canWinDiagonally1(game,ourPlayer) + canWinDiagonally2(game,ourPlayer));
 	}
 
+// Evaluation function
 	public double evaluation(GameStateModule game) {
 		if(game.isGameOver()) {
 			if(ourPlayer == game.getWinner()) {
-				//println("win");
 				return 9999;
 			}else if(ourPlayer != game.getWinner()){
-				//println("lose");
 				return -9999;
 			} else if (game.getWinner() == 0) {
-				//rintln("draw");
 				return 0;
 			} 
 		}
@@ -199,12 +189,11 @@ public class AngelaAI2 extends AIModule
 		return 0;
 	}
 
+// Minimax algorithm
 	public double betterMinimax(int level, boolean maxPlay) {
-		//println("in betterminiax, level: " + level);
 		double bestValue = 0;
 		double curVal;
 		if(m_GameState.isGameOver() || level == depthLimit) {
-			//println("terminal node");
 			return evaluation(m_GameState);
 		}
 		if(maxPlay) {
